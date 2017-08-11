@@ -33,8 +33,8 @@ class MOOC(Base):
     level = Column(String(32))
     description = Column(String(250))
     cost = Column(String(10))
-    link = Column(String)
-    image = Column(String)
+    link = Column(String(250))
+    image = Column(String(250))
     field_id = Column(Integer, ForeignKey('field.id'))
     field = relationship("Field")
 
@@ -42,15 +42,15 @@ class MOOC(Base):
     def serialize(self):
         """Return object data in easily serializable format"""
         return {
-            'id':       self.id,
-            'title':    self.title,
-            'provider': self.provider,
-            'creator':  self.creator,
-            'level': self.level,
-            'description': self.description,
-            'cost': self.cost,
-            'link': self.link,
-            'image': self.image
+            'id':           self.id,
+            'title':        self.title,
+            'provider':     self.provider,
+            'creator':      self.creator,
+            'level':        self.level,
+            'description':  self.description,
+            'cost':         self.cost,
+            'link':         self.link,
+            'image':        self.image
         }
 
 
