@@ -8,6 +8,7 @@ engine = create_engine('sqlite:///top_mooc.db')
 
 # Make a connection between class definitions and the corresponding tables within database
 Base.metadata.bind = engine
+
 # Establish a link of connection between code execution and the engine
 DBSession = sessionmaker(bind=engine)
 session = DBSession()
@@ -15,11 +16,52 @@ session = DBSession()
 app = Flask(__name__)
 
 
+# JSON Endpoints
+@app.route('/api/categories')
+def categories_json():
+    """Return all fields and moocs"""
+    fields = session.query(Field).all()
+    fields_list = []
+    for field in fields:
+        moocs = session.query(MOOC).filter_by(field_id=field.id).all()
+        moocs_list = [mooc.serialize for mooc in moocs]
+        field_moocs = field.serialize
+        field_moocs['items'] = moocs_list
+        fields_list.append(field_moocs)
+
+    return jsonify(Categories=fields_list)
+
+
+@app.route('/api/fields')
+def fields_json():
+    """Return all fields"""
+    fields = session.query(Field).all()
+    return jsonify(Fields=[field.serialize for field in fields])
+
+
+@app.route('/api/moocs')
+def moocs_json():
+    """Return all moocs"""
+    moocs = session.query(MOOC).all()
+    return jsonify(MOOCs=[mooc.serialize for mooc in moocs])
+
+
+@app.route('/api/moocs/<int:mooc_id>')
+def mooc_json(mooc_id):
+    """Return a specific mooc"""
+    mooc = session.query(MOOC).filter_by(id=mooc_id).first()
+    if mooc is None:
+        return jsonify({'error': 'This MOOC does not exist'})
+    else:
+        return jsonify(MOOC=[mooc.serialize])
+
+
+# Normal Routing
 @app.route('/')
 @app.route('/fields/')
 def index():
     """Show all CS fields with latest MOOCs"""
-    return "All fields with latest moocs here!"
+    return "All fields and moocs here!"
 
 
 @app.route('/fields/new', methods=['GET', 'POST'])
