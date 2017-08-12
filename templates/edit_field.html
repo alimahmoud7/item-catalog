@@ -5,11 +5,11 @@
     <title>Title</title>
 </head>
 <body>
-    <h1>Edit (field name)</h1>
+    <h1>Edit {{ field.name }} Field</h1>
     <form method="post">
-        <label>Name: <input type="text" name="name" placeholder="CS Field Name"></label>
+        <label>Name: <input type="text" name="name" placeholder="{{ field.name }}"></label>
         <input type="submit" value="Rename">
-        <button type="button"><a href="#">Cancel</a></button>
+        <button type="button"><a href="{{ url_for('index') }}">Cancel</a></button>
     </form>
 </body>
 </html>

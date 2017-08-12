@@ -5,10 +5,10 @@
     <title>Title</title>
 </head>
 <body>
-    <h1>Are you sure you want to delete (field name) and all MOOCs inside it?</h1>
+    <h1>Are you sure you want to delete {{ field.name }} Field and all MOOCs inside it?</h1>
     <form method="post">
         <input type="submit" value="Delete">
-        <button type="button"><a href="#">Cancel</a></button>
+        <button type="button"><a href="{{ url_for('index') }}">Cancel</a></button>
     </form>
 </body>
 </html>

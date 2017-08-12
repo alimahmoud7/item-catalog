@@ -5,6 +5,17 @@
     <title>Title</title>
 </head>
 <body>
-
+    <h1>{{ field.name }}</h1>
+    <ul>
+        {%- for mooc in moocs %}
+        <h3>{{ mooc.title }}</h3>
+        <li>{{ mooc.provider }}</li>
+        <li>{{ mooc.creator }}</li>
+        <li>{{ mooc.level }}</li>
+        <li>{{ mooc.url }}</li>
+        <li>{{ mooc.image }}</li>
+        <li>{{ mooc.description }}</li>
+        {%- endfor %}
+    </ul>
 </body>
 </html>

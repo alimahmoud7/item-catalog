@@ -5,6 +5,18 @@
     <title>Title</title>
 </head>
 <body>
+    <h1>CS Fields</h1>
+    <ol>
+        {%- for field in fields %}
+        <li>{{ field.name }}</li>
+        {%- endfor %}
+    </ol>
 
+    <h1>Latest MOOCs</h1>
+    <ol>
+        {%- for mooc in moocs %}
+        <li>{{ mooc.title }}</li>
+        {%- endfor %}
+    </ol>
 </body>
 </html>

@@ -5,17 +5,17 @@
     <title>Title</title>
 </head>
 <body>
-    <h1>Edit MOOC</h1>
+    <h1>Edit {{ mooc.title }} MOOC in {{ field.name }} Field</h1>
     <form method="post">
-        <label>Title: <input type="text" name="title" placeholder="Name"></label><br>
-        <label>Provider: <input type="text" name="provider" placeholder="Provider"></label><br>
-        <label>creator: <input type="text" name="creator" placeholder="creator"></label><br>
-        <label>level: <input type="text" name="level" placeholder="level"></label><br>
-        <label>cost: <input type="text" name="cost" placeholder="cost"></label><br>
-        <label>url: <input type="url" name="url" placeholder="url"></label><br>
-        <label>description:<textarea maxlength="250" rows="3" name="description" placeholder="Description"></textarea></label><br>
-        <label>image: <input type="text" name="image" placeholder="image"></label><br>
+        <label>Title: <input type="text" name="title" placeholder="{{ mooc.title }}"></label><br>
+        <label>Provider: <input type="text" name="provider" placeholder="{{ mooc.provider }}"></label><br>
+        <label>creator: <input type="text" name="creator" placeholder="{{ mooc.creator }}"></label><br>
+        <label>level: <input type="text" name="level" placeholder="{{ mooc.level }}"></label><br>
+        <label>url: <input type="url" name="url" placeholder="{{ mooc.url }}"></label><br>
+        <label>description:<textarea maxlength="250" rows="5" name="description" placeholder="{{ mooc.description }}"></textarea></label><br>
+        <label>image: <input type="text" name="image" placeholder="{{ mooc.image }}"></label><br>
         <input type="submit" value="Edit">
-        <button type="button"><a href="#">Cancel</a></button>
+        <button type="button"><a href="{{ url_for('show_moocs', field_id=field.id) }}">Cancel</a></button>
+    </form>
 </body>
 </html>
