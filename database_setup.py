@@ -31,9 +31,8 @@ class MOOC(Base):
     provider = Column(String(80), nullable=False)
     creator = Column(String(80))
     level = Column(String(32))
+    url = Column(String(250))
     description = Column(String(250))
-    cost = Column(String(10))
-    link = Column(String(250))
     image = Column(String(250))
     field_id = Column(Integer, ForeignKey('field.id'))
     field = relationship("Field")
@@ -48,9 +47,9 @@ class MOOC(Base):
             'creator':      self.creator,
             'level':        self.level,
             'description':  self.description,
-            'cost':         self.cost,
-            'link':         self.link,
-            'image':        self.image
+            'url':          self.url,
+            'image':        self.image,
+            'field_id':     self.field_id
         }
 
 
