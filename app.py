@@ -1,8 +1,8 @@
-from database_setup import Base, Field, MOOC
+from database_setup import Base, Field, MOOC, User
 from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
 
-from flask import Flask, render_template, request, url_for, redirect, jsonify
+from flask import Flask, render_template, request, url_for, redirect, jsonify, render_template_string
 
 from flask import session as login_session
 import random
@@ -33,6 +33,34 @@ CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_i
 # OAuth APP ID and SECRET for Facebook
 APP_ID = '1407391409368190'
 APP_SECRET = '629a86589bbad38ab16ac6692967cac2'
+
+
+# Functions of local permission system for users
+def create_user(login_session):
+    """Create a new user when logged in by oauth2 and Return user id"""
+    new_user = User(name=login_session['username'], email=login_session['email'],
+                    picture=login_session['picture'])
+    session.add(new_user)
+    session.commit()
+    user = session.query(User).filter_by(email=login_session['email']).one()
+    return user.id
+
+
+def get_user_info(user_id):
+    """Return a user from database"""
+    user = session.query(User).filter_by(id=user_id).one()
+    return user
+
+
+def get_user_id(email):
+    """Return a user id from database"""
+    user = session.query(User).filter_by(email=email).first()
+
+    # Check if user doesn't exist
+    if user is None:
+        return None
+
+    return user.id
 
 
 # Authentication & Authorization
@@ -108,14 +136,33 @@ def gconnect():
     login_session['picture'] = data['picture']
     login_session['email'] = data['email']
 
-    welcome_html = '''
-    <div>
-        <h2>Welcome, {}! <h2>
-        <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
-    </div>
-    '''
-    print("Done!")
-    return welcome_html.format(login_session['username'], login_session['picture'])
+    # Create a new user if it doesn't exist
+    old_user = False  # Track if user logged in before
+    user_id = get_user_id(login_session['email'])
+    if user_id is None:
+        # Create a new user
+        user_id = create_user(login_session)
+    else:
+        old_user = True  # User in database so welcome back!
+    login_session['user_id'] = user_id
+
+    welcome = '''
+        <div>
+            <h2>Welcome, {}!</h2>
+            <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
+        </div>
+        '''
+    welcome_back = '''
+        <div>
+            <h2>Welcome back, {}!</h2>
+            <p>I remember you my friend :)</p>
+            <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
+        </div>
+        '''
+    if old_user:
+        return welcome_back.format(login_session['username'], login_session['picture'])
+
+    return welcome.format(login_session['username'], login_session['picture'])
 
 
 @app.route('/gdisconnect/')
@@ -127,7 +174,7 @@ def gdisconnect():
         print('Current user not connected.')
         return jsonify(error={'msg': 'Current user not connected.'}), 401
 
-    # Revoke access
+    # Revoke access of logged in user
     url = 'https://accounts.google.com/o/oauth2/revoke?token={}'.format(access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
@@ -137,12 +184,12 @@ def gdisconnect():
         del login_session['username']
         del login_session['email']
         del login_session['picture']
-        # del login_session['user_id']
+        del login_session['user_id']
         del login_session['provider']
         print('login_session', login_session)
         return jsonify(success={'msg': 'Successfully disconnected.'})
-    else:
-        return jsonify(error={'msg': 'Failed to revoke token for given user.'}), 400
+
+    return jsonify(error={'msg': 'Failed to revoke token for given user.'}), 400
 
 
 @app.route('/fbconnect', methods=['POST'])
@@ -188,13 +235,33 @@ def fbconnect():
     data = requests.get(url).json()
     login_session['picture'] = data["data"]["url"]
 
-    welcome_html = '''
-        <div>
-            <h2>Welcome, {}! <h2>
-            <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
-        </div>
-        '''
-    return welcome_html.format(login_session['username'], login_session['picture'])
+    # Create a new user if it doesn't exist
+    old_user = False  # Track if user logged in before
+    user_id = get_user_id(login_session['email'])
+    if user_id is None:
+        # Create a new user
+        user_id = create_user(login_session)
+    else:
+        old_user = True  # User in database so welcome back!
+    login_session['user_id'] = user_id
+
+    welcome = '''
+    <div>
+        <h2>Welcome, {}!</h2>
+        <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
+    </div>
+    '''
+    welcome_back = '''
+    <div>
+        <h2>Welcome back, {}!</h2>
+        <p>I remember you my friend :)</p>
+        <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
+    </div>
+    '''
+    if old_user:
+        return welcome_back.format(login_session['username'], login_session['picture'])
+
+    return welcome.format(login_session['username'], login_session['picture'])
 
 
 @app.route('/fbdisconnect/')
@@ -209,7 +276,7 @@ def fbdisconnect():
         return jsonify(error={'msg': 'Current user not connected.'}), 401
 
     url = 'https://graph.facebook.com/{}/permissions?access_token={}'.format(facebook_id, access_token)
-    result = requests.get(url)
+    result = requests.delete(url)
     print('result by requests ', result.json())
 
     del login_session['facebook_id']
@@ -217,7 +284,7 @@ def fbdisconnect():
     del login_session['username']
     del login_session['email']
     del login_session['picture']
-    # del login_session['user_id']
+    del login_session['user_id']
     del login_session['provider']
     return jsonify(success={'msg': 'Successfully disconnected.'}), 200
 
@@ -239,6 +306,7 @@ def disconnect():
             del login_session['provider']
         except KeyError:
             pass
+        print('Successfully disconnected.')
         return redirect(url_for('index'))
 
     return redirect(url_for('index'))
@@ -306,7 +374,7 @@ def new_field():
         redirect(url_for('show_login'))
 
     if request.method == 'POST':
-        if request.form.get('name'):
+        if request.form.get('name', user_id=login_session.get('user_id')):
             field = Field(name=request.form.get('name'))
             session.add(field)
             session.commit()
@@ -399,7 +467,7 @@ def new_mooc(field_id):
             mooc = MOOC(title=request.form.get('title'), provider=request.form.get('provider'),
                         creator=request.form.get('creator'), level=request.form.get('level'),
                         url=request.form.get('url'), description=request.form.get('description'),
-                        image=request.form.get('image'), field=field)
+                        image=request.form.get('image'), field=field, user_id=login_session.get('user_id'))
             session.add(mooc)
             session.commit()
         return redirect(url_for('show_moocs', field_id=field_id))
