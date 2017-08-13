@@ -26,11 +26,17 @@ session = DBSession()
 
 app = Flask(__name__)
 APPLICATION_NAME = "Top MOOC App"
+
+# OAuth client ID for Google
 CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
+
+# OAuth APP ID and SECRET for Facebook
+APP_ID = '1407391409368190'
+APP_SECRET = '629a86589bbad38ab16ac6692967cac2'
 
 
 # Authentication & Authorization
-@app.route('/login')
+@app.route('/login/')
 def show_login():
     """Show login page and Generate a random state token"""
     state = ''.join(random.sample(string.ascii_letters + string.digits, 32))
@@ -60,10 +66,8 @@ def gconnect():
 
     # Check that the access token is valid
     access_token = credentials.access_token
-    print('access_token:', access_token)  ####
     url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}'.format(access_token))
     result = requests.get(url).json()
-    print('result7 by requests:', result)  ####
 
     # If there was an error in the access token info, abort
     if result.get('error') is not None:
@@ -71,8 +75,6 @@ def gconnect():
 
     # Verify that the access token is used for the intended user
     gplus_id = credentials.id_token['sub']
-    print('gplus_id7:', gplus_id)  ####
-    print('credentials.id_token:', credentials.id_token)  ####
     if result.get('user_id') != gplus_id:
         return jsonify(error={'msg': "Token's user ID doesn't match given user ID."}), 401
 
@@ -81,16 +83,15 @@ def gconnect():
         print("Token's client ID does not match app's.")
         return jsonify(error={'msg': "Token's client ID does not match app's."}), 401
 
+    # Verify if the user already connected
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
-    print('stored_access_token:', stored_access_token)  #######
-    print('stored_gplus_id:', stored_gplus_id)  #####
-    print('login_session7:', login_session)  ########
-
     if stored_access_token is not None and stored_gplus_id == gplus_id:
-        # Update the access_token in login_session
+        # Update the access_token in login_session to avoid error when signing out :)
         login_session['access_token'] = credentials.access_token
-        return jsonify(success={'msg': 'Current user is already connected.'}), 200
+        response = make_response(json.dumps('Current user is already connected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
 
     # Store the access token in the session for later use.
     login_session['access_token'] = credentials.access_token
@@ -100,7 +101,6 @@ def gconnect():
     userinfo_url = "https://www.googleapis.com/oauth2/v1/userinfo"
     params = {'access_token': credentials.access_token, 'alt': 'json'}
     data = requests.get(userinfo_url, params=params).json()
-    print('data7:', data)  ####
 
     # Store user info in the current session
     login_session['provider'] = 'google'
@@ -109,10 +109,12 @@ def gconnect():
     login_session['email'] = data['email']
 
     welcome_html = '''
-    <h1>Welcome, {}! <h1>
-    <img src="{}" style="width: 200px; height: 200px;border-radius: 150px;-webkit-border-radius: 150px;-moz-border-radius: 150px;">
+    <div>
+        <h2>Welcome, {}! <h2>
+        <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
+    </div>
     '''
-    print("done!")
+    print("Done!")
     return welcome_html.format(login_session['username'], login_session['picture'])
 
 
@@ -120,18 +122,15 @@ def gconnect():
 def gdisconnect():
     """Logout from Google Auth"""
     access_token = login_session.get('access_token')
-    print('access_token7:', access_token)
     gplus_id = login_session.get('gplus_id')
     if gplus_id is None:
         print('Current user not connected.')
         return jsonify(error={'msg': 'Current user not connected.'}), 401
 
-    print('In gdisconnect access token is {}'.format(access_token))
-    print('User name is: {}'.format(login_session['username']))
+    # Revoke access
     url = 'https://accounts.google.com/o/oauth2/revoke?token={}'.format(access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
-    print('result httplib2 {}'.format(result))
     if result['status'] == '200':
         del login_session['access_token']
         del login_session['gplus_id']
@@ -144,6 +143,83 @@ def gdisconnect():
         return jsonify(success={'msg': 'Successfully disconnected.'})
     else:
         return jsonify(error={'msg': 'Failed to revoke token for given user.'}), 400
+
+
+@app.route('/fbconnect', methods=['POST'])
+def fbconnect():
+    """Handle login authentication and authorization with Facebook"""
+    # Validate state token
+    if request.args.get('state') != login_session.get('state'):
+        print('Invalid state parameter.')
+        return jsonify(error={'msg': 'Invalid state parameter.'}), 401
+
+    # Obtain authorization token
+    token = request.data.decode()
+
+    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&' \
+          'client_id={}&client_secret={}&fb_exchange_token={}'.format(APP_ID, APP_SECRET, token)
+    result = requests.get(url).json()
+
+    # Get access token from response
+    access_token = result.get('access_token')
+
+    # Verify if the user already connected
+    if login_session.get('access_token') is not None:
+        # Update the access_token in login_session to avoid error when signing out :)
+        login_session['access_token'] = access_token
+        response = make_response(json.dumps('Current user is already connected.'), 200)
+        response.headers['Content-Type'] = 'application/json'
+        return response
+
+    # Use token to get user info from API
+    url = 'https://graph.facebook.com/v2.8/me?access_token={}&fields=name,id,email'.format(access_token)
+    data = requests.get(url).json()
+
+    login_session['provider'] = 'facebook'
+    login_session['username'] = data["name"]
+    login_session['email'] = data["email"]
+    login_session['facebook_id'] = data["id"]
+
+    # The token must be stored in the login_session in order to properly logout
+    login_session['access_token'] = access_token
+
+    # Get user picture
+    url = 'https://graph.facebook.com/v2.8/me/picture?access_token={}&redirect=0&height=200&width=200'.format(access_token)
+    data = requests.get(url).json()
+    login_session['picture'] = data["data"]["url"]
+
+    welcome_html = '''
+        <div>
+            <h2>Welcome, {}! <h2>
+            <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
+        </div>
+        '''
+    return welcome_html.format(login_session['username'], login_session['picture'])
+
+
+@app.route('/fbdisconnect/')
+def fbdisconnect():
+    """Logout from Facebook Auth"""
+    facebook_id = login_session.get('facebook_id')
+
+    # The access token must me included to successfully logout
+    access_token = login_session.get('access_token')
+    if facebook_id is None:
+        print('Current user not connected.')
+        return jsonify(error={'msg': 'Current user not connected.'}), 401
+
+    url = 'https://graph.facebook.com/{}/permissions?access_token={}'.format(facebook_id, access_token)
+    result = requests.get(url)
+    print('result by requests ', result.json())
+
+    del login_session['facebook_id']
+    del login_session['access_token']
+    del login_session['username']
+    del login_session['email']
+    del login_session['picture']
+    # del login_session['user_id']
+    del login_session['provider']
+    return jsonify(success={'msg': 'Successfully disconnected.'}), 200
 
 
 # JSON Endpoints
