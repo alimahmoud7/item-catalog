@@ -222,6 +222,28 @@ def fbdisconnect():
     return jsonify(success={'msg': 'Successfully disconnected.'}), 200
 
 
+@app.route('/disconnect')
+def disconnect():
+    """Logout from any oauth provider"""
+    if 'provider' in login_session:
+        if login_session.get('provider') == 'google':
+            gdisconnect()
+        if login_session.get('provider') == 'facebook':
+            fbdisconnect()
+        try:
+            del login_session['access_token']
+            del login_session['username']
+            del login_session['email']
+            del login_session['picture']
+            del login_session['user_id']
+            del login_session['provider']
+        except KeyError:
+            pass
+        return redirect(url_for('index'))
+
+    return redirect(url_for('index'))
+
+
 # JSON Endpoints
 @app.route('/api/categories')
 def categories_json():
@@ -268,12 +290,21 @@ def index():
     """Show all CS fields with latest MOOCs"""
     fields = session.query(Field).order_by(asc(Field.name)).all()
     moocs = session.query(MOOC).order_by(desc(MOOC.id)).all()
+
+    # Prevent unauthorized users from modification, They must login first
+    if 'username' not in login_session:
+        return render_template('public_index.html', fields=fields, moocs=moocs)
+
     return render_template('index.html', fields=fields, moocs=moocs)
 
 
 @app.route('/fields/new', methods=['GET', 'POST'])
 def new_field():
     """Add a new CS field"""
+    # Prevent unauthorized users from modification, They must login first
+    if 'username' not in login_session:
+        redirect(url_for('show_login'))
+
     if request.method == 'POST':
         if request.form.get('name'):
             field = Field(name=request.form.get('name'))
@@ -287,8 +318,11 @@ def new_field():
 @app.route('/fields/<int:field_id>/edit', methods=['GET', 'POST'])
 def edit_field(field_id):
     """Edit a CS field"""
-    field = session.query(Field).filter_by(id=field_id).first()
+    # Prevent unauthorized users from modification, They must login first
+    if 'username' not in login_session:
+        redirect(url_for('show_login'))
 
+    field = session.query(Field).filter_by(id=field_id).first()
     # Check if field doesn't exist in database
     if field is None:
         return jsonify({'error': 'This Field does not exist!'})
@@ -306,8 +340,11 @@ def edit_field(field_id):
 @app.route('/fields/<int:field_id>/delete', methods=['GET', 'POST'])
 def delete_field(field_id):
     """Delete a CS field"""
-    field = session.query(Field).filter_by(id=field_id).first()
+    # Prevent unauthorized users from modification, They must login first
+    if 'username' not in login_session:
+        redirect(url_for('show_login'))
 
+    field = session.query(Field).filter_by(id=field_id).first()
     # Check if field doesn't exist in database
     if field is None:
         return jsonify({'error': 'This Field does not exist!'})
@@ -332,20 +369,27 @@ def delete_field(field_id):
 def show_moocs(field_id):
     """Show all MOOCs with a specific field"""
     field = session.query(Field).filter_by(id=field_id).first()
-
     # Check if field doesn't exist in database
     if field is None:
         return jsonify({'error': 'This Field does not exist!'})
 
     moocs = session.query(MOOC).filter_by(field_id=field_id).order_by(asc(MOOC.title)).all()
+
+    # Prevent unauthorized users from modification, They must login first
+    if 'username' not in login_session:
+        return render_template('public_moocs.html', field=field, moocs=moocs)
+
     return render_template('moocs.html', field=field, moocs=moocs)
 
 
 @app.route('/fields/<int:field_id>/moocs/new', methods=['GET', 'POST'])
 def new_mooc(field_id):
     """Add new MOOC"""
-    field = session.query(Field).filter_by(id=field_id).first()
+    # Prevent unauthorized users from modification, They must login first
+    if 'username' not in login_session:
+        redirect(url_for('show_login'))
 
+    field = session.query(Field).filter_by(id=field_id).first()
     # Check if field doesn't exist in database
     if field is None:
         return jsonify({'error': 'This Field does not exist!'})
@@ -366,10 +410,13 @@ def new_mooc(field_id):
 @app.route('/fields/<int:field_id>/moocs/<int:mooc_id>/edit', methods=['GET', 'POST'])
 def edit_mooc(field_id, mooc_id):
     """Edit a MOOC"""
+    # Prevent unauthorized users from modification, They must login first
+    if 'username' not in login_session:
+        redirect(url_for('show_login'))
+
     field = session.query(Field).filter_by(id=field_id).first()
     mooc = session.query(MOOC).filter_by(id=mooc_id, field_id=field_id).first()
-
-    # Check if field doesn't exist in database
+    # Check if mooc doesn't exist in database
     if mooc is None or field is None:
         return jsonify({'error': 'This MOOC does not exist!'})
 
@@ -396,10 +443,13 @@ def edit_mooc(field_id, mooc_id):
 @app.route('/fields/<int:field_id>/moocs/<int:mooc_id>/delete', methods=['GET', 'POST'])
 def delete_mooc(field_id, mooc_id):
     """Delete a MOOC"""
+    # Prevent unauthorized users from modification, They must login first
+    if 'username' not in login_session:
+        redirect(url_for('show_login'))
+
     field = session.query(Field).filter_by(id=field_id).first()
     mooc = session.query(MOOC).filter_by(id=mooc_id, field_id=field_id).first()
-
-    # Check if field doesn't exist in database
+    # Check if mooc doesn't exist in database
     if mooc is None or field is None:
         return jsonify({'error': 'This MOOC does not exist!'})
 
