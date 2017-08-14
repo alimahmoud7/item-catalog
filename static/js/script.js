@@ -1,5 +1,9 @@
 // To make active class work
-$('.field-list').on('click', 'li', function() {
-    $('.field-list li.active').removeClass('active');
-    $(this).addClass('active');
+$(document).ready(function(){
+  $(".field-list li").each(function(){
+    var href = $(this).find('a').attr('href');
+    if (href === window.location.pathname) {
+      $(this).addClass('active');
+    }
+  });
 });

@@ -458,13 +458,14 @@ def show_moocs(field_id):
     if field is None:
         return jsonify({'error': 'This Field does not exist!'})
 
+    fields = session.query(Field).order_by(asc(Field.name)).all()
     moocs = session.query(MOOC).filter_by(field_id=field_id).order_by(asc(MOOC.title)).all()
     creator = get_user_info(field.user_id)
     # Prevent unauthorized users from modification, They must login first
     if 'username' not in login_session:
-        return render_template('public_moocs.html', field=field, moocs=moocs, creator=creator)
+        return render_template('public_moocs.html', field=field, moocs=moocs, creator=creator, fields=fields)
 
-    return render_template('moocs.html', field=field, moocs=moocs, creator=creator)
+    return render_template('moocs.html', field=field, moocs=moocs, creator=creator, fields=fields)
 
 
 @app.route('/fields/<int:field_id>/moocs/<int:mooc_id>/')
