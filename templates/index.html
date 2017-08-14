@@ -17,6 +17,7 @@
     <div class="col-sm-3">
         <h3>CS Fields</h3>
         <ul class="field-list">
+            <li class="active"><a href="{{ url_for('index') }}">All</a></li>
             {% for field in fields %}
             <li><a href="{{ url_for('show_moocs', field_id=field.id) }}">{{ field.name }}</a></li>
             {% endfor %}
