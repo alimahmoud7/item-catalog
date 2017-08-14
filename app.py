@@ -2,7 +2,8 @@ from database_setup import Base, Field, MOOC, User
 from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
 
-from flask import Flask, render_template, request, url_for, redirect, jsonify, flash
+from flask import Flask, render_template, request, url_for,\
+    redirect, jsonify, flash
 
 from flask import session as login_session
 import random
@@ -17,7 +18,8 @@ from flask import make_response
 
 engine = create_engine('sqlite:///top_mooc.db')
 
-# Make a connection between class definitions and the corresponding tables within database
+# Make a connection between class definitions
+# and the corresponding tables within database
 Base.metadata.bind = engine
 
 # Establish a link of connection between code execution and the engine
@@ -28,7 +30,8 @@ app = Flask(__name__)
 APPLICATION_NAME = "Top MOOC App"
 
 # OAuth client ID for Google
-CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
+CLIENT_ID = json.loads(
+    open('client_secrets.json', 'r').read())['web']['client_id']
 
 # OAuth APP ID and SECRET for Facebook
 APP_ID = '1407391409368190'
@@ -38,7 +41,8 @@ APP_SECRET = '629a86589bbad38ab16ac6692967cac2'
 # Functions of local permission system for users
 def create_user(login_session):
     """Create a new user when logged in by oauth2 and Return user id"""
-    new_user = User(name=login_session['username'], email=login_session['email'],
+    new_user = User(name=login_session['username'],
+                    email=login_session['email'],
                     picture=login_session['picture'])
     session.add(new_user)
     session.commit()
@@ -90,11 +94,13 @@ def gconnect():
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
         print('Failed to upgrade the authorization code.')
-        return jsonify(error={'msg': 'Failed to upgrade the authorization code.'}), 401
+        return jsonify(error={
+            'msg': 'Failed to upgrade the authorization code.'}), 401
 
     # Check that the access token is valid
     access_token = credentials.access_token
-    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}'.format(access_token))
+    url = ('https://www.googleapis.com/oauth2/v1/tokeninfo?access_token={}'
+           .format(access_token))
     result = requests.get(url).json()
 
     # If there was an error in the access token info, abort
@@ -104,20 +110,24 @@ def gconnect():
     # Verify that the access token is used for the intended user
     gplus_id = credentials.id_token['sub']
     if result.get('user_id') != gplus_id:
-        return jsonify(error={'msg': "Token's user ID doesn't match given user ID."}), 401
+        return jsonify(error={
+            'msg': "Token's user ID doesn't match given user ID."}), 401
 
     # Verify that the access token is valid for this app.
     if result['issued_to'] != CLIENT_ID:
         print("Token's client ID does not match app's.")
-        return jsonify(error={'msg': "Token's client ID does not match app's."}), 401
+        return jsonify(error={
+            'msg': "Token's client ID does not match app's."}), 401
 
     # Verify if the user already connected
     stored_access_token = login_session.get('access_token')
     stored_gplus_id = login_session.get('gplus_id')
     if stored_access_token is not None and stored_gplus_id == gplus_id:
-        # Update the access_token in login_session to avoid error when signing out :)
+        # Update the access_token in login_session
+        # to avoid error when signing out :)
         login_session['access_token'] = credentials.access_token
-        response = make_response(json.dumps('Current user is already connected.'), 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
@@ -149,20 +159,22 @@ def gconnect():
     flash("You are now logged in as {}".format(login_session['username']))
 
     welcome = '''
-        <div>
-            <h2>Welcome, {}!</h2>
-            <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
-        </div>
-        '''
+    <div>
+        <h2>Welcome, {}!</h2>
+        <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
+    </div>
+    '''
     welcome_back = '''
-        <div>
-            <h2>Welcome back, {}!</h2>
-            <p>I remember you my friend :)</p>
-            <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
-        </div>
-        '''
+    <div>
+        <h2>Welcome back, {}!</h2>
+        <p>I remember you my friend :)</p>
+        <img src="{}" style="width: 200px; height: 200px;border-radius: 50%;">
+    </div>
+    '''
+
     if old_user:
-        return welcome_back.format(login_session['username'], login_session['picture'])
+        return welcome_back.format(
+            login_session['username'], login_session['picture'])
 
     return welcome.format(login_session['username'], login_session['picture'])
 
@@ -177,7 +189,8 @@ def gdisconnect():
         return jsonify(error={'msg': 'Current user not connected.'}), 401
 
     # Revoke access of logged in user
-    url = 'https://accounts.google.com/o/oauth2/revoke?token={}'.format(access_token)
+    url = 'https://accounts.google.com/o/oauth2/revoke?token={}'.\
+        format(access_token)
     h = httplib2.Http()
     result = h.request(url, 'GET')[0]
     if result['status'] == '200':
@@ -190,7 +203,8 @@ def gdisconnect():
         del login_session['provider']
         return jsonify(success={'msg': 'Successfully disconnected.'})
 
-    return jsonify(error={'msg': 'Failed to revoke token for given user.'}), 400
+    return jsonify(error={
+        'msg': 'Failed to revoke token for given user.'}), 400
 
 
 @app.route('/fbconnect', methods=['POST'])
@@ -204,8 +218,9 @@ def fbconnect():
     # Obtain authorization token
     token = request.data.decode()
 
-    url = 'https://graph.facebook.com/oauth/access_token?grant_type=fb_exchange_token&' \
-          'client_id={}&client_secret={}&fb_exchange_token={}'.format(APP_ID, APP_SECRET, token)
+    url = 'https://graph.facebook.com/oauth/access_token?' \
+          'grant_type=fb_exchange_token&client_id={}&client_secret={}' \
+          '&fb_exchange_token={}'.format(APP_ID, APP_SECRET, token)
     result = requests.get(url).json()
 
     # Get access token from response
@@ -213,14 +228,17 @@ def fbconnect():
 
     # Verify if the user already connected
     if login_session.get('access_token') is not None:
-        # Update the access_token in login_session to avoid error when signing out :)
+        # Update the access_token in login_session
+        # to avoid error when signing out :)
         login_session['access_token'] = access_token
-        response = make_response(json.dumps('Current user is already connected.'), 200)
+        response = make_response(
+            json.dumps('Current user is already connected.'), 200)
         response.headers['Content-Type'] = 'application/json'
         return response
 
     # Use token to get user info from API
-    url = 'https://graph.facebook.com/v2.8/me?access_token={}&fields=name,id,email'.format(access_token)
+    url = 'https://graph.facebook.com/v2.8/me?access_token={}' \
+          '&fields=name,id,email'.format(access_token)
     data = requests.get(url).json()
 
     login_session['provider'] = 'facebook'
@@ -232,7 +250,8 @@ def fbconnect():
     login_session['access_token'] = access_token
 
     # Get user picture
-    url = 'https://graph.facebook.com/v2.8/me/picture?access_token={}&redirect=0&height=200&width=200'.format(access_token)
+    url = 'https://graph.facebook.com/v2.8/me/picture?access_token={}' \
+          '&redirect=0&height=200&width=200'.format(access_token)
     data = requests.get(url).json()
     login_session['picture'] = data["data"]["url"]
 
@@ -262,7 +281,8 @@ def fbconnect():
     </div>
     '''
     if old_user:
-        return welcome_back.format(login_session['username'], login_session['picture'])
+        return welcome_back.format(
+            login_session['username'], login_session['picture'])
 
     return welcome.format(login_session['username'], login_session['picture'])
 
@@ -278,7 +298,8 @@ def fbdisconnect():
         print('Current user not connected.')
         return jsonify(error={'msg': 'Current user not connected.'}), 401
 
-    url = 'https://graph.facebook.com/{}/permissions?access_token={}'.format(facebook_id, access_token)
+    url = 'https://graph.facebook.com/{}/permissions?access_token={}'\
+        .format(facebook_id, access_token)
     result = requests.delete(url)
     print('result by requests ', result.json())
 
@@ -380,7 +401,8 @@ def new_field():
 
     if request.method == 'POST':
         if request.form.get('name'):
-            field = Field(name=request.form.get('name'), user_id=login_session.get('user_id'))
+            field = Field(name=request.form.get('name'),
+                          user_id=login_session.get('user_id'))
             session.add(field)
             session.commit()
             flash('New Field {} Successfully Created'.format(field.name))
@@ -459,13 +481,16 @@ def show_moocs(field_id):
         return jsonify({'error': 'This Field does not exist!'})
 
     fields = session.query(Field).order_by(asc(Field.name)).all()
-    moocs = session.query(MOOC).filter_by(field_id=field_id).order_by(asc(MOOC.title)).all()
+    moocs = session.query(MOOC).filter_by(field_id=field_id)\
+        .order_by(asc(MOOC.title)).all()
     creator = get_user_info(field.user_id)
     # Prevent unauthorized users from modification, They must login first
     if 'username' not in login_session:
-        return render_template('public_moocs.html', field=field, moocs=moocs, creator=creator, fields=fields)
+        return render_template('public_moocs.html', field=field,
+                               moocs=moocs, creator=creator, fields=fields)
 
-    return render_template('moocs.html', field=field, moocs=moocs, creator=creator, fields=fields)
+    return render_template('moocs.html', field=field,
+                           moocs=moocs, creator=creator, fields=fields)
 
 
 @app.route('/fields/<int:field_id>/moocs/<int:mooc_id>/')
@@ -497,11 +522,16 @@ def new_mooc(field_id):
         return jsonify({'error': 'This Field does not exist!'})
 
     if request.method == 'POST':
-        if request.form.get('title') and request.form.get('provider') and request.form.get('url'):
-            mooc = MOOC(title=request.form.get('title'), provider=request.form.get('provider'),
-                        creator=request.form.get('creator'), level=request.form.get('level'),
-                        url=request.form.get('url'), description=request.form.get('description'),
-                        image=request.form.get('image'), field=field, user_id=login_session.get('user_id'))
+        if request.form.get('title') and request.form.get('provider') \
+                and request.form.get('url'):
+            mooc = MOOC(title=request.form.get('title'),
+                        provider=request.form.get('provider'),
+                        creator=request.form.get('creator'),
+                        level=request.form.get('level'),
+                        url=request.form.get('url'),
+                        description=request.form.get('description'),
+                        image=request.form.get('image'),
+                        field=field, user_id=login_session.get('user_id'))
             session.add(mooc)
             session.commit()
             flash('New MOOC {} Successfully Created'.format(mooc.title))
@@ -510,7 +540,8 @@ def new_mooc(field_id):
     return render_template('new_mooc.html', field=field)
 
 
-@app.route('/fields/<int:field_id>/moocs/<int:mooc_id>/edit', methods=['GET', 'POST'])
+@app.route('/fields/<int:field_id>/moocs/<int:mooc_id>/edit',
+           methods=['GET', 'POST'])
 def edit_mooc(field_id, mooc_id):
     """Edit a MOOC"""
     # Prevent unauthorized users from modification, They must login first
@@ -550,7 +581,8 @@ def edit_mooc(field_id, mooc_id):
         return jsonify(error={'msg': "You are not the owner of that!!"}), 401
 
 
-@app.route('/fields/<int:field_id>/moocs/<int:mooc_id>/delete', methods=['GET', 'POST'])
+@app.route('/fields/<int:field_id>/moocs/<int:mooc_id>/delete',
+           methods=['GET', 'POST'])
 def delete_mooc(field_id, mooc_id):
     """Delete a MOOC"""
     # Prevent unauthorized users from modification, They must login first

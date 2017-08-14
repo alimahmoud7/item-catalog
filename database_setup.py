@@ -7,7 +7,8 @@ Base = declarative_base()
 
 
 class User(Base):
-    """Represent a logged in user to create local permission system for users"""
+    """Represent a logged in user
+    to create local permission system for users"""
     __tablename__ = 'user'
 
     id = Column(Integer, primary_key=True)
