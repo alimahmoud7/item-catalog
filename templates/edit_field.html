@@ -1,15 +1,24 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <h1>Edit {{ field.name }} Field</h1>
-    <form method="post">
-        <label>Name: <input type="text" name="name" placeholder="{{ field.name }}"></label>
-        <input type="submit" value="Rename">
-        <button type="button"><a href="{{ url_for('index') }}">Cancel</a></button>
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+<h3 class="title">Edit {{ field.name }} Field</h3>
+<form method="post" class="form-horizontal">
+    <div class="form-group">
+        <label for="name" class="col-sm-2 control-label">Name</label>
+        <div class="col-sm-8">
+            <input id="name" type="text" name="name" placeholder="{{ field.name }}" class="form-control">
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-8">
+            <button class="btn btn-default" type="submit">Rename</button>
+        </div>
+    </div>
+    <div class="form-group">
+        <div class="col-sm-offset-2 col-sm-8">
+            <button type="button" class="btn btn-default"><a href="{{ url_for('index') }}">Cancel</a></button>
+        </div>
+    </div>
+</form>
+</div>
+{% endblock %}

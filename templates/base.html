@@ -2,15 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Top MOOC App</title>
-    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- CSS -->
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
     {% block links %}{% endblock %}
 </head>
 <body>
     <!-- Header -->
     <div class="navbar navbar-default" role="navigation">
-        <div class="container">
+        <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -18,31 +23,40 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a class="navbar-brand" href="#">Top MOOC App</a>
+                <a class="navbar-brand" href="{{ url_for('index') }}">Top MOOC App</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="">Home</a></li>
+                    <li><a href="{{ url_for('index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span>  Home</a></li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li><a href="#">Log In</a></li>
+                    {% if 'username' in session %}
+                    <li><img src="{{ session.get('picture') }}" width="50px" style="border-radius: 50%"></li>
+                    <li><a>{{ session.get('username') }}</a></li>
+                    <li class="login-out"><a href="{{ url_for('disconnect') }}" style="color: #FFFFFF;">Logout</a></li>
+                    {% else %}
+                    <li class="login-out"><a href="{{ url_for('show_login') }}" style="color: #FFFFFF;">Login</a></li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
     </div>
 
-    <div class="container">
         {% block content %}
         {% endblock %}
-    </div>
 
     <!-- Footer -->
-    <footer id="contact">
-        <div class="container-fluid">
+    <footer>
+        <div class="container">
             <div class="row text-center">
                 <p class="copyright">&copy; 2017 Ali Mahmoud</p>
             </div>
         </div>
     </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/jquery-3.2.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
 </html>

@@ -1,14 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-    <!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
-    <script src="https://apis.google.com/js/platform.js?onload=start"></script>
-</head>
-<body>
+{% extends "base.html" %}
+{% block links %}
+<!--LOAD PRE-REQUISITES FOR GOOGLE SIGN IN -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="https://apis.google.com/js/platform.js?onload=start"></script>
+{% endblock %}
 
+{% block content %}
+<div class="container">
 <!-- GOOGLE PLUS SIGN IN -->
 
 <!-- BUTTON -->
@@ -125,6 +123,5 @@
 <!-- END BUTTON -->
 
 <!--END FACEBOOK SIGN IN -->
-
-</body>
-</html>
+</div>
+{% endblock %}

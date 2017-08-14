@@ -1,10 +1,60 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <div>
+	{% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+			<div class="alert alert-success alert-dismissible" role="alert">
+  				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+				<strong>Well done!</strong> {{ message }}
+			</div>
+        {% endfor %}
+        {% endif %}
+    {% endwith %}
+    </div>
+<div class="row">
+    <div class="col-sm-3">
+        <h3>CS Fields</h3>
+        <ul class="field-list">
+            {% for field in fields %}
+            <li><a href="{{ url_for('show_moocs', field_id=field.id) }}">{{ field.name }}</a></li>
+            {% endfor %}
+        </ul>
+    </div>
 
-</body>
-</html>
+    {% block moocs %}
+    <div class="col-sm-9 moocs">
+        <h3 style="margin-bottom: 40px">Latest MOOCs</h3>
+        <h4></h4>
+
+        {%- for mooc in moocs %}
+        <div class="row mooc">
+            <div class="col-sm-3">
+                <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}"><img src="{{ mooc.image }}" width="150px" class="mooc-img"></a>
+            </div>
+            <div class="col-sm-9 data">
+                <div class="row">
+                    <div class="col-sm-8">
+                        <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" style="font-size: 18px; text-decoration: none">{{ mooc.title }}</a>
+                    </div>
+                    <div class="col-sm-4">
+                        {{ mooc.level }}
+                    </div>
+                </div>
+                <div class="row" style="padding-top: 15px">
+                    <div class="col-sm-8">
+                        <strong>{{ mooc.field.name }}</strong>
+                    </div>
+                    <div class="col-sm-4">
+                        <a href="{{ mooc.url }}">{{ mooc.provider }}</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {%- endfor %}
+    </div>
+    {% endblock %}
+</div>
+</div>
+{% endblock %}

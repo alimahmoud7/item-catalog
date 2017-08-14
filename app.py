@@ -2,7 +2,7 @@ from database_setup import Base, Field, MOOC, User
 from sqlalchemy import create_engine, asc, desc
 from sqlalchemy.orm import sessionmaker
 
-from flask import Flask, render_template, request, url_for, redirect, jsonify, render_template_string
+from flask import Flask, render_template, request, url_for, redirect, jsonify, flash
 
 from flask import session as login_session
 import random
@@ -146,6 +146,8 @@ def gconnect():
         old_user = True  # User in database so welcome back!
     login_session['user_id'] = user_id
 
+    flash("You are now logged in as {}".format(login_session['username']))
+
     welcome = '''
         <div>
             <h2>Welcome, {}!</h2>
@@ -186,7 +188,6 @@ def gdisconnect():
         del login_session['picture']
         del login_session['user_id']
         del login_session['provider']
-        print('login_session', login_session)
         return jsonify(success={'msg': 'Successfully disconnected.'})
 
     return jsonify(error={'msg': 'Failed to revoke token for given user.'}), 400
@@ -244,6 +245,8 @@ def fbconnect():
     else:
         old_user = True  # User in database so welcome back!
     login_session['user_id'] = user_id
+
+    flash("You are now logged in as {}".format(login_session['username']))
 
     welcome = '''
     <div>
@@ -306,9 +309,11 @@ def disconnect():
             del login_session['provider']
         except KeyError:
             pass
-        print('Successfully disconnected.')
+
+        flash("You have successfully been logged out.")
         return redirect(url_for('index'))
 
+    flash("You were not logged in!")
     return redirect(url_for('index'))
 
 
@@ -374,10 +379,11 @@ def new_field():
         redirect(url_for('show_login'))
 
     if request.method == 'POST':
-        if request.form.get('name', user_id=login_session.get('user_id')):
-            field = Field(name=request.form.get('name'))
+        if request.form.get('name'):
+            field = Field(name=request.form.get('name'), user_id=login_session.get('user_id'))
             session.add(field)
             session.commit()
+            flash('New Field {} Successfully Created'.format(field.name))
         return redirect(url_for('index'))
 
     return render_template('new_field.html')
@@ -395,14 +401,19 @@ def edit_field(field_id):
     if field is None:
         return jsonify({'error': 'This Field does not exist!'})
 
-    if request.method == 'POST':
-        if request.form.get('name'):
-            field.name = request.form.get('name')
-            session.add(field)
-            session.commit()
-        return redirect(url_for('index'))
+    # Verify if he is the user who created it
+    if field.user_id == login_session['user_id']:
+        if request.method == 'POST':
+            if request.form.get('name'):
+                field.name = request.form.get('name')
+                session.add(field)
+                flash('Field Successfully Edited {}'.format(field.name))
+                session.commit()
+            return redirect(url_for('index'))
 
-    return render_template('edit_field.html', field=field)
+        return render_template('edit_field.html', field=field)
+    else:
+        return jsonify(error={'msg': "You are not the owner of that!!"}), 401
 
 
 @app.route('/fields/<int:field_id>/delete', methods=['GET', 'POST'])
@@ -417,19 +428,25 @@ def delete_field(field_id):
     if field is None:
         return jsonify({'error': 'This Field does not exist!'})
 
-    if request.method == 'POST':
-        session.delete(field)
-        session.commit()
-
-        # Delete Field MOOCs too
-        moocs = session.query(MOOC).filter_by(field_id=field.id).all()
-        for mooc in moocs:
-            session.delete(mooc)
+    # Verify if he is the user who created it
+    if field.user_id == login_session['user_id']:
+        if request.method == 'POST':
+            session.delete(field)
+            flash('Field {} Successfully Deleted'.format(field.name))
             session.commit()
 
-        return redirect(url_for('index'))
+            # Delete Field MOOCs too
+            moocs = session.query(MOOC).filter_by(field_id=field.id).all()
+            for mooc in moocs:
+                session.delete(mooc)
+                flash('MOOC {} Successfully Deleted'.format(mooc.title))
+                session.commit()
 
-    return render_template('delete_field.html', field=field)
+            return redirect(url_for('index'))
+
+        return render_template('delete_field.html', field=field)
+    else:
+        return jsonify(error={'msg': "You are not the owner of that!!"}), 401
 
 
 @app.route('/fields/<int:field_id>/')
@@ -448,6 +465,22 @@ def show_moocs(field_id):
         return render_template('public_moocs.html', field=field, moocs=moocs)
 
     return render_template('moocs.html', field=field, moocs=moocs)
+
+
+@app.route('/fields/<int:field_id>/moocs/<int:mooc_id>/')
+def show_mooc(field_id, mooc_id):
+    """Show a MOOC"""
+    field = session.query(Field).filter_by(id=field_id).first()
+    mooc = session.query(MOOC).filter_by(id=mooc_id, field_id=field_id).first()
+    # Check if mooc doesn't exist in database
+    if mooc is None or field is None:
+        return jsonify({'error': 'This MOOC does not exist!'})
+
+    # Prevent unauthorized users from modification, They must login first
+    if 'username' not in login_session:
+        return render_template('public_mooc.html', field=field, mooc=mooc)
+
+    return render_template('mooc.html', field=field, mooc=mooc)
 
 
 @app.route('/fields/<int:field_id>/moocs/new', methods=['GET', 'POST'])
@@ -470,6 +503,7 @@ def new_mooc(field_id):
                         image=request.form.get('image'), field=field, user_id=login_session.get('user_id'))
             session.add(mooc)
             session.commit()
+            flash('New MOOC {} Successfully Created'.format(mooc.title))
         return redirect(url_for('show_moocs', field_id=field_id))
 
     return render_template('new_mooc.html', field=field)
@@ -488,24 +522,31 @@ def edit_mooc(field_id, mooc_id):
     if mooc is None or field is None:
         return jsonify({'error': 'This MOOC does not exist!'})
 
-    if request.method == 'POST':
-        if request.form.get('title'):
-            mooc.title = request.form.get('title')
-        if request.form.get('provider'):
-            mooc.provider = request.form.get('provider')
-        if request.form.get('creator'):
-            mooc.creator = request.form.get('creator')
-        if request.form.get('level'):
-            mooc.level = request.form.get('level')
-        if request.form.get('url'):
-            mooc.url = request.form.get('url')
-        if request.form.get('description'):
-            mooc.description = request.form.get('description')
-        if request.form.get('image'):
-            mooc.image = request.form.get('image')
-        return redirect(url_for('show_moocs', field_id=field_id))
+    # Verify if he is the user who created it
+    if mooc.user_id == login_session['user_id']:
+        if request.method == 'POST':
+            if request.form.get('title'):
+                mooc.title = request.form.get('title')
+            if request.form.get('provider'):
+                mooc.provider = request.form.get('provider')
+            if request.form.get('creator'):
+                mooc.creator = request.form.get('creator')
+            if request.form.get('level'):
+                mooc.level = request.form.get('level')
+            if request.form.get('url'):
+                mooc.url = request.form.get('url')
+            if request.form.get('description'):
+                mooc.description = request.form.get('description')
+            if request.form.get('image'):
+                mooc.image = request.form.get('image')
+            session.add(mooc)
+            session.commit()
+            flash('MOOC {} Successfully Edited'.format(mooc.title))
+            return redirect(url_for('show_moocs', field_id=field_id))
 
-    return render_template('edit_mooc.html', mooc=mooc, field=field)
+        return render_template('edit_mooc.html', mooc=mooc, field=field)
+    else:
+        return jsonify(error={'msg': "You are not the owner of that!!"}), 401
 
 
 @app.route('/fields/<int:field_id>/moocs/<int:mooc_id>/delete', methods=['GET', 'POST'])
@@ -521,12 +562,17 @@ def delete_mooc(field_id, mooc_id):
     if mooc is None or field is None:
         return jsonify({'error': 'This MOOC does not exist!'})
 
-    if request.method == 'POST':
-        session.delete(mooc)
-        session.commit()
-        return redirect(url_for('show_moocs', field_id=field_id))
+    # Verify if he is the user who created it
+    if mooc.user_id == login_session['user_id']:
+        if request.method == 'POST':
+            session.delete(mooc)
+            session.commit()
+            flash('MOOC {} Successfully Deleted'.format(mooc.title))
+            return redirect(url_for('show_moocs', field_id=field_id))
 
-    return render_template('delete_mooc.html', mooc=mooc, field=field)
+        return render_template('delete_mooc.html', mooc=mooc, field=field)
+    else:
+        return jsonify(error={'msg': "You are not the owner of that!!"}), 401
 
 
 if __name__ == '__main__':

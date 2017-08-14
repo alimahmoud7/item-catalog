@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+<div class="row mooc">
+    <div class="col-sm-8">
+        <h3>{{ mooc.title }}</h3>
+    </div>
+    <div class="col-sm-4">
+        <h4>{{ field.name }}</h4>
+    </div>
+</div>
+<div class="row mooc">
+    <div class="col-sm-8 desc">
+        <p><strong>Description:</strong> {{ mooc.description }}</p>
+    </div>
+    <div class="col-sm-3">
+        <div class="row">
+            {{ mooc.level }}
+        </div>
+        <div class="row">
+            {{ mooc.creator }}
+        </div>
+        <div class="row">
+            <a href="{{ mooc.url }}">Go to MOOC</a>
+        </div>
+
+    </div>
+
+</div>
+</div>
+{% endblock %}

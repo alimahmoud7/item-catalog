@@ -1,14 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <h1>Are you sure you want to delete {{ field.name }} Field and all MOOCs inside it?</h1>
-    <form method="post">
-        <input type="submit" value="Delete">
-        <button type="button"><a href="{{ url_for('index') }}">Cancel</a></button>
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+{% block content %}
+<div class="container">
+<h3 class="title">Are you sure you want to delete {{ field.name }} Field and all MOOCs inside it?</h3>
+<form method="post">
+    <button class="btn btn-danger" type="submit">Delete</button>
+    <button type="button" class="btn btn-default"><a href="{{ url_for('edit_field', field_id=field.id) }}">Edit</a></button>
+    <button type="button" class="btn btn-default"><a href="{{ url_for('index') }}">Cancel</a></button>
+</form>
+</div>
+{% endblock %}

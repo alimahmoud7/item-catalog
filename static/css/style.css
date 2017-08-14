@@ -1,0 +1,99 @@
+body {
+    font-family: "Helvetica Neue", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 16px;
+}
+
+footer {
+    background-color: #f8f8f8;
+    padding-top: 15px;
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    .mooc-img {
+        width: 250px;
+    }
+    .mooc {
+        text-align: center;
+    }
+    .moocs {
+        border-left: none !important;
+    }
+}
+
+@media (min-width: 768px) and (max-width: 992px) {
+    .data {
+        padding-left: 30px;
+    }
+}
+
+.navbar-default {
+    background-color: #ffffff;
+    border-color: #e7e7e7;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+
+.navbar-default .navbar-collapse, .navbar-default .navbar-form {
+    border-color: #e7e7e7;
+    font-size: 16px;
+    color: black;
+}
+
+.login-out {
+    background-color: #148de4;
+}
+
+.moocs {
+    border-left: 1px solid #bdacac;
+}
+
+.active {
+    background-color: #F0F0F0;
+}
+
+ul {
+    list-style-type: none;
+    margin-left: -20px;
+}
+ul a {
+    color: #000000;
+    text-decoration: none;
+    font-size: 15px;
+
+}
+
+a {
+    text-decoration: none !important;
+}
+
+.mooc {
+    margin-bottom: 50px;
+}
+
+.mooc-title {
+    font-size: 18px;
+    text-decoration: none;
+}
+
+.title {
+    margin-bottom: 40px;
+}
+
+.desc {
+    margin-right: 15px;
+    font-size: 16px;
+
+}
+
+.mooc-btn {
+    margin-bottom: 40px;
+}
+
+.danger {
+    color: #FFFFFF;
+}
+
+.extend {
+    padding-top: 20px;
+}

@@ -1,21 +1,43 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
-    <h1>{{ field.name }}</h1>
-    <ul>
-        {%- for mooc in moocs %}
-        <h3>{{ mooc.title }}</h3>
-        <li>{{ mooc.provider }}</li>
-        <li>{{ mooc.creator }}</li>
-        <li>{{ mooc.level }}</li>
-        <li>{{ mooc.url }}</li>
-        <li>{{ mooc.image }}</li>
-        <li>{{ mooc.description }}</li>
-        {%- endfor %}
-    </ul>
-</body>
-</html>
+{% extends "index.html" %}
+{% block moocs %}
+<div class="col-sm-9 moocs">
+    <section>
+        <h3>{{ field.name }}</h3>
+        <button type="button" class="btn btn-default mooc-btn"><a href="{{ url_for('edit_field', field_id=field.id) }}">Edit</a></button>
+        <button type="button" class="btn btn-danger mooc-btn"><a href="{{ url_for('delete_field', field_id=field.id) }}" class="danger">Delete</a></button>
+    </section>
+    <button type="button" class="btn btn-default mooc-btn"><a href="{{ url_for('new_mooc', field_id=field.id) }}">Add MOOC</a></button>
+
+    {%- for mooc in moocs %}
+    <div class="row mooc">
+        <div class="col-sm-3">
+            <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}"><img src="{{ mooc.image }}" width="150px" class="mooc-img"></a>
+        </div>
+        <div class="col-sm-9 data">
+            <div class="row">
+                <div class="col-sm-8">
+                    <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" class="mooc-title">{{ mooc.title }}</a>
+                </div>
+                <div class="col-sm-4">
+                    {{ mooc.level }}
+                </div>
+            </div>
+            <div class="row extend">
+                <div class="col-sm-8">
+                    <strong>Creator:</strong> {{ mooc.creator }}
+                </div>
+                <div class="col-sm-4">
+                     <a href="{{ mooc.url }}">{{ mooc.provider }}</a>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <button type="button" class="btn btn-default mooc-btn"><a href="{{ url_for('edit_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}">Edit</a></button>
+                    <button type="button" class="btn btn-danger mooc-btn"><a href="{{ url_for('delete_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" class="danger">Delete</a></button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {%- endfor %}
+</div>
+{% endblock %}
