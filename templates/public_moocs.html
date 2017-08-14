@@ -2,13 +2,13 @@
 {% block moocs %}
 <div class="container-fluid">
 <div class="col-sm-9 moocs">
-    <section>
+    <div class="row field-header">
         <h3 class="title">{{ field.name }}</h3>
-    </section>
+    </div>
     {%- for mooc in moocs %}
     <div class="row mooc">
         <div class="col-sm-3">
-            <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}"><img src="{{ mooc.image }}" width="150px" class="mooc-img"></a>
+            <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}"><img src="{{ mooc.image }}" width="160px" class="mooc-img"></a>
         </div>
         <div class="col-sm-9 data">
             <div class="row">

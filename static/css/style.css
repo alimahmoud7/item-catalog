@@ -23,7 +23,7 @@ footer {
 
 @media (min-width: 768px) and (max-width: 992px) {
     .data {
-        padding-left: 30px;
+        padding-left: 35px;
     }
 }
 
@@ -96,4 +96,20 @@ a {
 
 .extend {
     padding-top: 20px;
+}
+
+.my-brand {
+    margin-top: -10px;
+}
+
+.creator-img {
+    display: block;
+    width: 90px;
+    border-radius: 50%;
+}
+
+.field-header {
+    background-color: #1f8fc1;
+    color: #ffffff;
+    margin-bottom: 10px;
 }
