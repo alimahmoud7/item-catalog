@@ -30,8 +30,9 @@ footer {
 .navbar-default {
     background-color: #ffffff;
     border-color: #e7e7e7;
-    padding-top: 15px;
-    padding-bottom: 15px;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    border-bottom: none;
 }
 
 .navbar-default .navbar-collapse, .navbar-default .navbar-form {
@@ -42,6 +43,7 @@ footer {
 
 .login-out {
     background-color: #148de4;
+    border-radius: 10px;
 }
 
 .moocs {
@@ -112,5 +114,5 @@ a {
     background-color: #1f8fc1;
     color: #ffffff;
     margin-bottom: 20px;
-    padding-left: 10px;
+    padding: 10px 0 10px 10px;
 }
