@@ -3,6 +3,7 @@
 <div class="container">
 <h3 class="title">Edit {{ field.name }} Field</h3>
 <form method="post" class="form-horizontal">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
         <label for="name" class="col-sm-2 control-label">Name</label>
         <div class="col-sm-8">

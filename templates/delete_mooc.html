@@ -3,6 +3,7 @@
 <div class="container">
 <h3 class="title">Are you sure you want to delete {{ mooc.title }}?</h3>
 <form method="post" >
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <button class="btn btn-danger" type="submit">Delete</button>
     <button type="button" class="btn btn-default"><a href="{{ url_for('edit_mooc', field_id=field.id, mooc_id=mooc.id) }}">Edit</a></button>
     <button type="button" class="btn btn-default"><a href="{{ url_for('show_moocs', field_id=field.id) }}">Cancel</a></button>

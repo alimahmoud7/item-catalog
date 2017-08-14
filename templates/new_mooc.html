@@ -3,6 +3,7 @@
 <div class="container">
 <h3 class="title">New MOOC in {{ field.name }}</h3>
 <form method="post" class="form-horizontal">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <div class="form-group">
         <label for="title" class="col-sm-2 control-label">Title</label>
         <div class="col-sm-8">

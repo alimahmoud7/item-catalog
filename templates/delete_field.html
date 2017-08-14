@@ -3,6 +3,7 @@
 <div class="container">
 <h3 class="title">Are you sure you want to delete {{ field.name }} Field and all MOOCs inside it?</h3>
 <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <button class="btn btn-danger" type="submit">Delete</button>
     <button type="button" class="btn btn-default"><a href="{{ url_for('edit_field', field_id=field.id) }}">Edit</a></button>
     <button type="button" class="btn btn-default"><a href="{{ url_for('index') }}">Cancel</a></button>

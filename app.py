@@ -16,6 +16,8 @@ import requests
 import json
 from flask import make_response
 
+from flask_wtf.csrf import CSRFProtect, CSRFError
+
 engine = create_engine('sqlite:///top_mooc.db')
 
 # Make a connection between class definitions
@@ -27,6 +29,7 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 app = Flask(__name__)
+csrf = CSRFProtect(app)  # Implement CSRF protection
 APPLICATION_NAME = "Top MOOC App"
 
 # OAuth client ID for Google
@@ -38,7 +41,12 @@ APP_ID = '1407391409368190'
 APP_SECRET = '629a86589bbad38ab16ac6692967cac2'
 
 
-# Functions of local permission system for users
+@app.errorhandler(CSRFError)
+def handle_csrf_error(e):
+    return jsonify(error={'msg': e.description}), 400
+
+
+# User Helper Functions
 def create_user(login_session):
     """Create a new user when logged in by oauth2 and Return user id"""
     new_user = User(name=login_session['username'],
@@ -77,6 +85,7 @@ def show_login():
 
 
 @app.route('/gconnect', methods=['POST'])
+@csrf.exempt
 def gconnect():
     """Handle login authentication and authorization with Google"""
     # Validate state token
@@ -208,6 +217,7 @@ def gdisconnect():
 
 
 @app.route('/fbconnect', methods=['POST'])
+@csrf.exempt
 def fbconnect():
     """Handle login authentication and authorization with Facebook"""
     # Validate state token
