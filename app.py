@@ -63,6 +63,9 @@ def get_user_info(user_id):
     user = session.query(User).filter_by(id=user_id).one()
     return user
 
+# To use this function in templates
+app.jinja_env.globals['user_info'] = get_user_info
+
 
 def get_user_id(email):
     """Return a user id from database"""

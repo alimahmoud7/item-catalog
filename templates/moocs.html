@@ -9,8 +9,8 @@
             <button type="button" class="btn btn-danger mooc-btn"><a href="{{ url_for('delete_field', field_id=field.id) }}" class="danger">Delete</a></button>
             {% endif %}
         </div>
-        <figure class="col-sm-2">
-                <img src="{{ creator.picture }}" alt="field creator" class="creator-img">
+        <figure class="col-sm-2 text-center">
+                <img src="{{ creator.picture }}" alt="User who created this field" class="creator-img">
                 <figcaption style="font-size: 14px">{{ creator.name }}</figcaption>
         </figure>
     </div>
@@ -27,7 +27,7 @@
                     <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" class="mooc-title">{{ mooc.title }}</a>
                 </div>
                 <div class="col-sm-4">
-                    <img src="{{ creator.picture }}" alt="mooc creator" width="50px">
+                    <img src="{{ user_info(mooc.user_id).picture }}" alt="User who created this mooc" width="50px">
                 </div>
             </div>
             <div class="row extend">
