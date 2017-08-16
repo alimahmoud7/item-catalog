@@ -29,7 +29,10 @@ DBSession = sessionmaker(bind=engine)
 session = DBSession()
 
 app = Flask(__name__)
-csrf = CSRFProtect(app)  # Implement CSRF protection
+
+# Implement CSRF protection
+csrf = CSRFProtect(app)
+
 APPLICATION_NAME = "Top MOOC App"
 
 # OAuth client ID for Google
@@ -43,6 +46,7 @@ APP_SECRET = '629a86589bbad38ab16ac6692967cac2'
 
 @app.errorhandler(CSRFError)
 def handle_csrf_error(e):
+    """Handling CSRF Error"""
     return jsonify(error={'msg': e.description}), 400
 
 
@@ -410,7 +414,7 @@ def new_field():
     """Add a new CS field"""
     # Prevent unauthorized users from modification, They must login first
     if 'username' not in login_session:
-        redirect(url_for('show_login'))
+        return redirect(url_for('show_login'))
 
     if request.method == 'POST':
         if request.form.get('name'):
@@ -429,7 +433,7 @@ def edit_field(field_id):
     """Edit a CS field"""
     # Prevent unauthorized users from modification, They must login first
     if 'username' not in login_session:
-        redirect(url_for('show_login'))
+        return redirect(url_for('show_login'))
 
     field = session.query(Field).filter_by(id=field_id).first()
     # Check if field doesn't exist in database
@@ -456,7 +460,7 @@ def delete_field(field_id):
     """Delete a CS field"""
     # Prevent unauthorized users from modification, They must login first
     if 'username' not in login_session:
-        redirect(url_for('show_login'))
+        return redirect(url_for('show_login'))
 
     field = session.query(Field).filter_by(id=field_id).first()
     # Check if field doesn't exist in database
@@ -527,7 +531,7 @@ def new_mooc(field_id):
     """Add new MOOC"""
     # Prevent unauthorized users from modification, They must login first
     if 'username' not in login_session:
-        redirect(url_for('show_login'))
+        return redirect(url_for('show_login'))
 
     field = session.query(Field).filter_by(id=field_id).first()
     # Check if field doesn't exist in database
@@ -559,7 +563,7 @@ def edit_mooc(field_id, mooc_id):
     """Edit a MOOC"""
     # Prevent unauthorized users from modification, They must login first
     if 'username' not in login_session:
-        redirect(url_for('show_login'))
+        return redirect(url_for('show_login'))
 
     field = session.query(Field).filter_by(id=field_id).first()
     mooc = session.query(MOOC).filter_by(id=mooc_id, field_id=field_id).first()
@@ -600,7 +604,7 @@ def delete_mooc(field_id, mooc_id):
     """Delete a MOOC"""
     # Prevent unauthorized users from modification, They must login first
     if 'username' not in login_session:
-        redirect(url_for('show_login'))
+        return redirect(url_for('show_login'))
 
     field = session.query(Field).filter_by(id=field_id).first()
     mooc = session.query(MOOC).filter_by(id=mooc_id, field_id=field_id).first()
