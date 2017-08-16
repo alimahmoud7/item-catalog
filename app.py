@@ -512,7 +512,7 @@ def show_mooc(field_id, mooc_id):
 
 
 @app.route('/fields/<int:field_id>/moocs/new', methods=['GET', 'POST'])
-@item_exist
+@category_exist
 @login_required
 def new_mooc(field_id):
     """Add new MOOC"""
