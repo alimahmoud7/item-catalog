@@ -5,8 +5,8 @@
 <form method="post" >
     <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
     <button class="btn btn-danger" type="submit">Delete</button>
-    <button type="button" class="btn btn-default"><a href="{{ url_for('edit_mooc', field_id=field.id, mooc_id=mooc.id) }}">Edit</a></button>
-    <button type="button" class="btn btn-default"><a href="{{ url_for('show_moocs', field_id=field.id) }}">Cancel</a></button>
+    <a class="btn btn-default" href="{{ url_for('mooc.edit_mooc', field_id=field.id, mooc_id=mooc.id) }}">Edit</a>
+    <a class="btn btn-default" href="{{ url_for('mooc.show_moocs', field_id=field.id) }}">Cancel</a>
 </form>
 </div>
 {% endblock %}

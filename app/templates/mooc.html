@@ -29,8 +29,8 @@
 </div>
 {% if mooc.user_id == session.get('user_id') %}
 <div class="row mooc">
-    <button type="button" class="btn btn-default mooc-btn"><a href="{{ url_for('edit_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}">Edit</a></button>
-    <button type="button" class="btn btn-danger mooc-btn"><a href="{{ url_for('delete_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" class="danger">Delete</a></button>
+    <a class="btn btn-default mooc-btn" href="{{ url_for('mooc.edit_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}">Edit</a>
+    <a class="btn btn-danger mooc-btn danger" href="{{ url_for('mooc.delete_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}">Delete</a>
 </div>
 {% endif %}
 </div>

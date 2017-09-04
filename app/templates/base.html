@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="{{ url_for('static', filename='favicon-test.ico') }}"/>
+    <title>Top MOOC App</title>
+
+    <!-- CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link href="{{ url_for('static', filename='css/bootstrap.min.css') }}" rel="stylesheet">
+    <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet">
+
+    {% block links %}{% endblock %}
+</head>
+<body>
+    <!-- Header -->
+    <div class="navbar navbar-default" role="navigation">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                <a class="navbar-brand my-brand" href="{{ url_for('field.index') }}"><img src="{{ url_for('static', filename='img/brand_test.png') }}" alt="logo" width="40px" style="display: inline">Top MOOC App</a>
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li><a href="{{ url_for('field.index') }}"><span class="glyphicon glyphicon-home" aria-hidden="true"></span>  Home</a></li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    {% if 'username' in session %}
+                    <li><a>{{ session.get('username') }}</a></li>
+                    <li class="user-photo"><img src="{{ session.get('picture') }}" width="50px" style="border-radius: 50%;"></li>
+                    <li class="login-btn"><a href="{{ url_for('auth.disconnect') }}" style="color: #FFFFFF;">Logout</a></li>
+                    {% else %}
+                    <li class="login-btn"><a href="{{ url_for('auth.show_login') }}" style="color: #FFFFFF;">Login</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+        {% block content %}
+        {% endblock %}
+
+    <div class="container">
+        <div class="row alert alert-warning text-center" style="margin-top: 30px" role="alert">
+            <strong>Warning!</strong> App is under construction, if you found any bug please report us.
+        </div>
+    </div>
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-6">
+                    <p class="email"><i class="fa fa-envelope-o" aria-hidden="true"></i>&nbsp; ali.mahmoud@engineer.com</p>
+                </div>
+                <div class="col-sm-6 text-right social">
+                    <a href="https://www.linkedin.com/in/alimahmoud7" target="_blank"><span class="fa fa-linkedin-square fa-3x" aria-hidden="true"></span></a>
+                    <a href="https://github.com/AliMahmoud7" target="_blank"><span class="fa fa-github-square fa-3x" aria-hidden="true"></span></a>
+                    <a href="https://twitter.com/Ali_Mahmoud_7" target="_blank"><span class="fa fa-twitter-square fa-3x" aria-hidden="true"></span></a>
+                    <a href="https://www.facebook.com/Ali.Mahmoud.7" target="_blank"><span class="fa fa-facebook-square fa-3x" aria-hidden="true"></span></a>
+                </div>
+            </div>
+            <div class="row text-center">
+                <p class="copyright">Copyright &copy; 2017 Ali Mahmoud</p>
+            </div>
+
+        </div>
+    </footer>
+
+    <!-- JavaScript -->
+    <script src="{{ url_for('static', filename='js/jquery-3.2.0.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

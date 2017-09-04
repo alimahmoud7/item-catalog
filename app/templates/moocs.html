@@ -5,8 +5,8 @@
         <div class="col-sm-10">
             <h3>{{ field.name }}</h3>
             {% if creator.id == session.get('user_id') %}
-            <button type="button" class="btn btn-default mooc-btn"><a href="{{ url_for('edit_field', field_id=field.id) }}">Edit</a></button>
-            <button type="button" class="btn btn-danger mooc-btn"><a href="{{ url_for('delete_field', field_id=field.id) }}" class="danger">Delete</a></button>
+            <a class="btn btn-default mooc-btn" href="{{ url_for('field.edit_field', field_id=field.id) }}">Edit</a>
+            <a class="btn btn-danger mooc-btn danger" href="{{ url_for('field.delete_field', field_id=field.id) }}">Delete</a>
             {% endif %}
         </div>
         <figure class="col-sm-2 text-center">
@@ -14,17 +14,17 @@
                 <figcaption style="font-size: 14px">{{ creator.name }}</figcaption>
         </figure>
     </div>
-    <button type="button" class="btn btn-default mooc-btn"><a href="{{ url_for('new_mooc', field_id=field.id) }}">Add MOOC</a></button>
+    <a class="btn btn-default mooc-btn" href="{{ url_for('mooc.new_mooc', field_id=field.id) }}">Add MOOC</a>
 
     {%- for mooc in moocs %}
     <div class="row mooc">
         <div class="col-sm-3">
-            <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}"><img src="{{ mooc.image }}" width="160px" class="mooc-img"></a>
+            <a href="{{ url_for('mooc.show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}"><img src="{{ mooc.image }}" width="160px" class="mooc-img"></a>
         </div>
         <div class="col-sm-9 data">
             <div class="row">
                 <div class="col-sm-8">
-                    <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" class="mooc-title">{{ mooc.title }}</a>
+                    <a href="{{ url_for('mooc.show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" class="mooc-title">{{ mooc.title }}</a>
                 </div>
                 <div class="col-sm-4">
                     <img src="{{ user_info(mooc.user_id).picture }}" alt="User who created this mooc" width="50px">
@@ -41,8 +41,8 @@
             {% if mooc.user_id == session.get('user_id') %}
             <div class="row">
                 <div class="col-sm-12 extend">
-                    <button type="button" class="btn btn-default mooc-btn"><a href="{{ url_for('edit_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}">Edit</a></button>
-                    <button type="button" class="btn btn-danger mooc-btn"><a href="{{ url_for('delete_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" class="danger">Delete</a></button>
+                    <a class="btn btn-default mooc-btn" href="{{ url_for('mooc.edit_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}">Edit</a>
+                    <a class="btn btn-danger mooc-btn danger" href="{{ url_for('mooc.delete_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}">Delete</a>
                 </div>
             </div>
             {% endif %}

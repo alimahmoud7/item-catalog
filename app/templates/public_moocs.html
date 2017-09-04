@@ -1,6 +1,5 @@
 {% extends "public_index.html" %}
 {% block moocs %}
-<div class="container-fluid">
 <div class="col-sm-9 moocs">
     <div class="row field-header">
         <div class="col-sm-10">
@@ -14,12 +13,12 @@
     {%- for mooc in moocs %}
     <div class="row mooc">
         <div class="col-sm-3">
-            <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}"><img src="{{ mooc.image }}" width="160px" class="mooc-img"></a>
+            <a href="{{ url_for('mooc.show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}"><img src="{{ mooc.image }}" width="160px" class="mooc-img"></a>
         </div>
         <div class="col-sm-9 data">
             <div class="row">
                 <div class="col-sm-8">
-                    <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" class="mooc-title">{{ mooc.title }}</a>
+                    <a href="{{ url_for('mooc.show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" class="mooc-title">{{ mooc.title }}</a>
                 </div>
                 <div class="col-sm-4">
                     <img src="{{ user_info(mooc.user_id).picture }}" alt="User who created this mooc" width="50px">
@@ -36,6 +35,5 @@
         </div>
     </div>
     {%- endfor %}
-</div>
 </div>
 {% endblock %}

@@ -5,7 +5,7 @@
 	{% with messages = get_flashed_messages() %}
       {% if messages %}
         {% for message in messages %}
-			<div class="alert alert-success alert-dismissible" role="alert">
+			<div class="alert alert-success alert-dismissible text-center" role="alert">
   				<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 				<strong>Well done!</strong> {{ message }}
 			</div>
@@ -17,28 +17,29 @@
     <div class="col-sm-3">
         <h3>CS Fields</h3>
         <ul class="field-list">
-            <li class="active"><a href="{{ url_for('index') }}">All</a></li>
+            <li class="active"><a href="{{ url_for('field.index') }}">All</a></li>
             {% for field in fields %}
-            <li><a href="{{ url_for('show_moocs', field_id=field.id) }}">{{ field.name }}</a></li>
+            <li><a href="{{ url_for('mooc.show_moocs', field_id=field.id) }}">{{ field.name }}</a></li>
             {% endfor %}
         </ul>
+        <a class="btn btn-default mooc-btn" href="{{ url_for('field.new_field') }}">Add Field</a>
     </div>
 
     {% block moocs %}
     <div class="col-sm-9 moocs">
-       <div class="row field-header">
+        <div class="row field-header">
             <h3 class="title">Latest MOOCs</h3>
         </div>
 
         {%- for mooc in moocs %}
         <div class="row mooc">
             <div class="col-sm-3">
-                <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}"><img src="{{ mooc.image }}" width="160px" class="mooc-img"></a>
+                <a href="{{ url_for('mooc.show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}"><img src="{{ mooc.image }}" width="160px" class="mooc-img"></a>
             </div>
             <div class="col-sm-9 data">
                 <div class="row">
                     <div class="col-sm-8">
-                        <a href="{{ url_for('show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" style="font-size: 18px; text-decoration: none">{{ mooc.title }}</a>
+                        <a href="{{ url_for('mooc.show_mooc', field_id=mooc.field.id, mooc_id=mooc.id) }}" class="mooc-title">{{ mooc.title }}</a>
                     </div>
                     <div class="col-sm-4">
                         {{ mooc.level }}

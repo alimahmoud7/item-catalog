@@ -1,14 +1,7 @@
 from functools import wraps
 from flask import redirect, url_for, jsonify,\
     session as login_session
-from database_setup import Base, Field, MOOC, User
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-engine = create_engine('sqlite:///top_mooc.db')
-Base.metadata.bind = engine
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
+from app.models import session, Field, MOOC, User
 
 
 def login_required(func):
@@ -16,7 +9,7 @@ def login_required(func):
     def wrapper(*args, **kwargs):
         # Prevent unauthorized users from modification, They must login first
         if 'username' not in login_session:
-            return redirect(url_for('show_login'))
+            return redirect(url_for('auth.show_login'))
         return func(*args, **kwargs)
     return wrapper
 

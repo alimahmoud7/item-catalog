@@ -1,15 +1,8 @@
-from database_setup import Base, Field, MOOC, User
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-
-engine = create_engine('sqlite:///top_mooc.db')
+from app.models import *
 
 # Make a connection between class definitions and the corresponding tables within database
-Base.metadata.bind = engine
 
 # Establish a link of connection between code execution and the engine
-DBSession = sessionmaker(bind=engine)
-session = DBSession()
 
 # User 1
 user = User(name='Ali Mahmoud', email='ali.mahmoud@engineer.com', picture='/static/img/user-ali.png')

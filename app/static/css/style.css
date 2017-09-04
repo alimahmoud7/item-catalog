@@ -1,14 +1,18 @@
+/* Global */
 body {
     font-family: "Helvetica Neue", Roboto, Helvetica, Arial, sans-serif;
     font-size: 16px;
+    /* Margin bottom by footer height */
+    margin-bottom: 180px;
 }
 
-footer {
-    background-color: #f8f8f8;
-    padding-top: 15px;
-    margin-top: 20px;
+.container-fluid {
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
+
+/* Media Queries */
 @media (max-width: 768px) {
     .mooc-img {
         width: 250px;
@@ -19,6 +23,13 @@ footer {
     .moocs {
         border-left: none !important;
     }
+    .user-photo {
+        padding: 10px 15px;
+    }
+    .email,
+    .social {
+        text-align: center !important;
+    }
 }
 
 @media (min-width: 768px) and (max-width: 992px) {
@@ -27,6 +38,8 @@ footer {
     }
 }
 
+
+/* Custom Bootstrap style */
 .navbar-default {
     background-color: #ffffff;
     border-color: #e7e7e7;
@@ -41,9 +54,26 @@ footer {
     color: black;
 }
 
-.login-out {
-    background-color: #148de4;
-    border-radius: 10px;
+
+/* Navbar */
+.my-brand {
+    margin-top: -10px;
+}
+
+.login-btn {
+    background-color: #02b3e4;
+    border-radius: 7px;
+    padding: 0 10px 0 10px;
+    margin-left: 8px;
+}
+
+
+/* Custom styles */
+.field-header {
+    background-color: #1f8fc1;
+    color: #ffffff;
+    margin-bottom: 20px;
+    padding: 10px 0 10px 10px;
 }
 
 .moocs {
@@ -58,6 +88,7 @@ ul {
     list-style-type: none;
     margin-left: -20px;
 }
+
 ul a {
     color: #000000;
     text-decoration: none;
@@ -100,18 +131,28 @@ a {
     padding-top: 20px;
 }
 
-.my-brand {
-    margin-top: -10px;
-}
-
 .creator-img {
     width: 90px;
     border-radius: 50%;
 }
 
-.field-header {
-    background-color: #1f8fc1;
-    color: #ffffff;
-    margin-bottom: 20px;
-    padding: 10px 0 10px 10px;
+
+/* Sticky Footer */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer */
+  height: 180px;
+  background-color: #eafbff;
+  padding-top: 30px;
+}
+
+.copyright {
+    margin-top: 30px;
 }
