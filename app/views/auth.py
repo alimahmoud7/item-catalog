@@ -18,7 +18,7 @@ from app import csrf
 
 # OAuth client ID for Google
 CLIENT_ID = json.loads(
-    open('client_secrets.json', 'r').read())['web']['client_id']
+    open('/var/www/catalog/client_secrets.json', 'r').read())['web']['client_id']
 
 # OAuth APP ID and SECRET for Facebook
 APP_ID = '1407391409368190'
@@ -50,7 +50,7 @@ def gconnect():
 
     try:
         # Upgrade the authorization code into a credentials object
-        oauth_flow = flow_from_clientsecrets('client_secrets.json', scope='')
+        oauth_flow = flow_from_clientsecrets('/var/www/catalog/client_secrets.json', scope='')
         oauth_flow.redirect_uri = 'postmessage'
         credentials = oauth_flow.step2_exchange(code)
     except FlowExchangeError:
@@ -263,7 +263,7 @@ def fbdisconnect():
     url = 'https://graph.facebook.com/{}/permissions?access_token={}'\
         .format(facebook_id, access_token)
     result = requests.delete(url)
-    print('result by requests ', result.json())
+    # print('result by requests ', result.json())
 
     del login_session['facebook_id']
     del login_session['access_token']
