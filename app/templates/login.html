@@ -86,12 +86,12 @@
     // successful.  See statusChangeCallback() for when this call is made.
     function sendTokenToServer() {
         var access_token = FB.getAuthResponse()['accessToken'];
-        console.log(access_token);
+        //console.log(access_token);
         // Hide the sign-in button now that the user is authorized
         $('#fbSignInButton').attr('style', 'display: none');
-        console.log('Welcome!  Fetching your information.... ');
+        //console.log('Welcome!  Fetching your information.... ');
         FB.api('/me', function (response) {
-            console.log('Successful login for: ' + response.name);
+            //console.log('Successful login for: ' + response.name);
             $.ajax({
                 type: 'POST',
                 url: '/fbconnect?state={{ STATE }}',
