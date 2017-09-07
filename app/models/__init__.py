@@ -8,8 +8,8 @@ from .field import Field  # noqa
 from .mooc import MOOC  # noqa
 from .user import User  # noqa
 
-engine = create_engine('sqlite:///catalog.db')
-# engine = create_engine('postgresql://catalog:123534@localhost/catalog')
+# engine = create_engine('sqlite:///catalog.db')
+engine = create_engine('postgresql://catalog:123534@localhost/catalog')
 
 Base.metadata.create_all(engine)
 
